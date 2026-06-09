@@ -9,17 +9,19 @@
         <outputRelativeToContentRoot value="true" />
         <module name="ms.ventas" />
         <module name="api.gateway-v1" />
-        <module name="ms.auth" />
+        <module name="api.gateway" />
         <module name="ms.producto" />
         <module name="ms.cliente" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="ms.alumnos" target="21" />
+      <module name="ms.auth" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api.gateway" options="-parameters" />
       <module name="api.gateway-v1" options="-parameters" />
       <module name="ms.alumnos" options="-parameters" />
       <module name="ms.auth" options="-parameters" />

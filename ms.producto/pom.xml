@@ -51,10 +51,10 @@
             <artifactId>quarkus-hibernate-orm-panache</artifactId>
         </dependency>
 
-        <!-- ORACLE -->
+        <!-- MYSQL -->
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-jdbc-oracle</artifactId>
+            <artifactId>quarkus-jdbc-mysql</artifactId>
         </dependency>
 
         <!-- VALIDACIONES -->

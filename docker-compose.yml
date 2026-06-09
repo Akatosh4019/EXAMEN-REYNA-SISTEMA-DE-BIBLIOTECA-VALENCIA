@@ -1,142 +1,107 @@
 services:
 
-  consul:
+  consul-examen:
     image: hashicorp/consul:latest
-    container_name: consul
+    container_name: examen-consul
     ports:
-      - "8500:8500"
+      - "8510:8500"
     command: agent -dev -client=0.0.0.0
 
-  mysql-local:
+  mysql-examen:
     image: mysql:8.0
-    container_name: mysql-local
+    container_name: examen-mysql
     environment:
       MYSQL_ROOT_PASSWORD: mysql123
       MYSQL_DATABASE: cliente
     ports:
-      - "3307:3306"
-
-  postgres-local:
-    image: postgres:16
-    container_name: postgres-local
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: oracle123
-      POSTGRES_DB: ventas
-    ports:
-      - "5433:5432"
-
-  oracle-local:
-    image: gvenzl/oracle-free:latest
-    container_name: oracle-local
-    environment:
-      ORACLE_PASSWORD: oracle123
-      APP_USER: producto
-      APP_USER_PASSWORD: 123
-    ports:
-      - "1522:1521"
+      - "3310:3306"
+    volumes:
+      - ./mysql-init:/docker-entrypoint-initdb.d
 
   ms-producto:
     build: ./ms.producto
-    container_name: ms-producto
+    container_name: examen-ms-producto
     ports:
-      - "8080:8080"
+      - "8090:8080"
     volumes:
       - ./central-config:/app/central-config
     depends_on:
-      - oracle-local
-      - consul
+      - mysql-examen
+      - consul-examen
 
   ms-producto-2:
     build: ./ms.producto
-    container_name: ms-producto-2
+    container_name: examen-ms-producto-2
     ports:
-      - "8085:8080"
+      - "8095:8080"
     volumes:
       - ./central-config:/app/central-config
     depends_on:
-      - oracle-local
-      - consul
+      - mysql-examen
+      - consul-examen
 
   ms-cliente:
     build: ./ms.cliente
-    container_name: ms-cliente
+    container_name: examen-ms-cliente
     ports:
-      - "8082:8082"
+      - "8092:8082"
     volumes:
       - ./central-config:/app/central-config
     depends_on:
-      - mysql-local
-      - consul
-
-  ms-auth:
-    build: ./ms.auth
-    container_name: ms-auth
-    ports:
-      - "8084:8084"
-    volumes:
-      - ./central-config:/app/central-config
-    depends_on:
-      - mysql-local
-      - consul
+      - mysql-examen
+      - consul-examen
 
   ms-ventas:
     build: ./ms.ventas
-    container_name: ms-ventas
+    container_name: examen-ms-ventas
     ports:
-      - "8083:8083"
+      - "8093:8083"
     volumes:
       - ./central-config:/app/central-config
     depends_on:
-      - postgres-local
+      - mysql-examen
       - ms-producto
       - ms-cliente
-      - consul
+      - consul-examen
 
   api-gateway:
     build: ./api.gateway
-    container_name: api-gateway
+    container_name: examen-api-gateway
     ports:
-      - "8030:8030"
+      - "8040:8030"
     depends_on:
-      - consul
+      - consul-examen
       - ms-producto
       - ms-producto-2
       - ms-cliente
-      - ms-auth
       - ms-ventas
 
   consul-registrator:
     image: curlimages/curl:latest
-    container_name: consul-registrator
+    container_name: examen-consul-registrator
     depends_on:
-      - consul
+      - consul-examen
       - ms-producto
       - ms-producto-2
       - ms-cliente
-      - ms-auth
       - ms-ventas
     entrypoint: >
       sh -c "
       sleep 40 &&
 
-      curl -X PUT http://consul:8500/v1/agent/service/register
+      curl -X PUT http://consul-examen:8500/v1/agent/service/register
       -H 'Content-Type: application/json'
       -d '{\"Name\":\"ms-producto\",\"ID\":\"ms-producto-1\",\"Address\":\"ms-producto\",\"Port\":8080,\"Check\":{\"HTTP\":\"http://ms-producto:8080/q/health\",\"Interval\":\"10s\"}}' &&
 
-      curl -X PUT http://consul:8500/v1/agent/service/register
+      curl -X PUT http://consul-examen:8500/v1/agent/service/register
       -H 'Content-Type: application/json'
       -d '{\"Name\":\"ms-producto\",\"ID\":\"ms-producto-2\",\"Address\":\"ms-producto-2\",\"Port\":8080,\"Check\":{\"HTTP\":\"http://ms-producto-2:8080/q/health\",\"Interval\":\"10s\"}}' &&
 
-      curl -X PUT http://consul:8500/v1/agent/service/register
+      curl -X PUT http://consul-examen:8500/v1/agent/service/register
       -H 'Content-Type: application/json'
       -d '{\"Name\":\"ms-cliente\",\"ID\":\"ms-cliente-1\",\"Address\":\"ms-cliente\",\"Port\":8082,\"Check\":{\"HTTP\":\"http://ms-cliente:8082/q/health\",\"Interval\":\"10s\"}}' &&
 
-      curl -X PUT http://consul:8500/v1/agent/service/register
-      -H 'Content-Type: application/json'
-      -d '{\"Name\":\"ms-auth\",\"ID\":\"ms-auth-1\",\"Address\":\"ms-auth\",\"Port\":8084,\"Check\":{\"HTTP\":\"http://ms-auth:8084/q/health\",\"Interval\":\"10s\"}}' &&
-
-      curl -X PUT http://consul:8500/v1/agent/service/register
+      curl -X PUT http://consul-examen:8500/v1/agent/service/register
       -H 'Content-Type: application/json'
       -d '{\"Name\":\"ms-ventas\",\"ID\":\"ms-ventas-1\",\"Address\":\"ms-ventas\",\"Port\":8083,\"Check\":{\"HTTP\":\"http://ms-ventas:8083/q/health\",\"Interval\":\"10s\"}}' &&
 
