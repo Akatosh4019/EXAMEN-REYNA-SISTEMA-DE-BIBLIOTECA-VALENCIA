@@ -16,30 +16,23 @@ spring:
     gateway:
       routes:
 
-        - id: producto
-          uri: lb://ms-producto
+        - id: libros
+          uri: lb://ms-valencia-lib-libros
           predicates:
-            - Path=/api/productos/**
+            - Path=/api/libros,/api/libros/**,/api/categorias,/api/categorias/**,/api/autores,/api/autores/**
           filters:
             - StripPrefix=1
 
-        - id: cliente
-          uri: lb://ms-cliente
+        - id: prestamos
+          uri: lb://ms-valencia-lib-prestamos
           predicates:
-            - Path=/api/clientes/**
+            - Path=/api/prestamos,/api/prestamos/**
           filters:
             - StripPrefix=1
 
-        - id: auth
-          uri: lb://ms-auth
+        - id: reservas
+          uri: lb://ms-valencia-lib-reserva
           predicates:
-            - Path=/api/auth/**
-          filters:
-            - StripPrefix=1
-
-        - id: ventas
-          uri: lb://ms-ventas
-          predicates:
-            - Path=/api/ventas/**
+            - Path=/api/reservas,/api/reservas/**
           filters:
             - StripPrefix=1

@@ -11,6 +11,12 @@
         <option value="$PROJECT_DIR$/ms.ventas/pom.xml" />
         <option value="$PROJECT_DIR$/api.gateway/pom.xml" />
         <option value="$PROJECT_DIR$/ms.auth/pom.xml" />
+        <option value="$PROJECT_DIR$/ms.envios/pom.xml" />
+        <option value="$PROJECT_DIR$/ms.inventario/pom.xml" />
+        <option value="$PROJECT_DIR$/ms.pedidos/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-valencia-lib-libros/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-valencia-lib-prestamos/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-valencia-lib-reserva/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

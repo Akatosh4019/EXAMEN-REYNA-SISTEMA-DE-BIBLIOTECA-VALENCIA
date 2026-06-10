@@ -12,57 +12,57 @@ services:
     container_name: examen-mysql
     environment:
       MYSQL_ROOT_PASSWORD: mysql123
-      MYSQL_DATABASE: cliente
+      MYSQL_DATABASE: libros_db
     ports:
       - "3310:3306"
     volumes:
       - ./mysql-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pmysql123"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
-  ms-producto:
-    build: ./ms.producto
-    container_name: examen-ms-producto
+  ms-valencia-lib-prestamos:
+    build: ./ms-valencia-lib-prestamos
+    container_name: examen-ms-valencia-lib-prestamos
     ports:
-      - "8090:8080"
+      - "8091:8081"
     volumes:
       - ./central-config:/app/central-config
     depends_on:
-      - mysql-examen
-      - consul-examen
+      mysql-examen:
+        condition: service_healthy
+      consul-examen:
+        condition: service_started
 
-  ms-producto-2:
-    build: ./ms.producto
-    container_name: examen-ms-producto-2
-    ports:
-      - "8095:8080"
-    volumes:
-      - ./central-config:/app/central-config
-    depends_on:
-      - mysql-examen
-      - consul-examen
-
-  ms-cliente:
-    build: ./ms.cliente
-    container_name: examen-ms-cliente
+  ms-valencia-lib-libros:
+    build: ./ms-valencia-lib-libros
+    container_name: examen-ms-valencia-lib-libros
     ports:
       - "8092:8082"
     volumes:
       - ./central-config:/app/central-config
     depends_on:
-      - mysql-examen
-      - consul-examen
+      mysql-examen:
+        condition: service_healthy
+      consul-examen:
+        condition: service_started
 
-  ms-ventas:
-    build: ./ms.ventas
-    container_name: examen-ms-ventas
+  ms-valencia-lib-reserva:
+    build: ./ms-valencia-lib-reserva
+    container_name: examen-ms-valencia-lib-reserva
     ports:
       - "8093:8083"
     volumes:
       - ./central-config:/app/central-config
     depends_on:
-      - mysql-examen
-      - ms-producto
-      - ms-cliente
-      - consul-examen
+      mysql-examen:
+        condition: service_healthy
+      ms-valencia-lib-libros:
+        condition: service_started
+      consul-examen:
+        condition: service_started
 
   api-gateway:
     build: ./api.gateway
@@ -71,39 +71,33 @@ services:
       - "8040:8030"
     depends_on:
       - consul-examen
-      - ms-producto
-      - ms-producto-2
-      - ms-cliente
-      - ms-ventas
+      - ms-valencia-lib-prestamos
+      - ms-valencia-lib-libros
+      - ms-valencia-lib-reserva
 
   consul-registrator:
     image: curlimages/curl:latest
     container_name: examen-consul-registrator
     depends_on:
       - consul-examen
-      - ms-producto
-      - ms-producto-2
-      - ms-cliente
-      - ms-ventas
+      - ms-valencia-lib-prestamos
+      - ms-valencia-lib-libros
+      - ms-valencia-lib-reserva
     entrypoint: >
       sh -c "
       sleep 40 &&
 
       curl -X PUT http://consul-examen:8500/v1/agent/service/register
       -H 'Content-Type: application/json'
-      -d '{\"Name\":\"ms-producto\",\"ID\":\"ms-producto-1\",\"Address\":\"ms-producto\",\"Port\":8080,\"Check\":{\"HTTP\":\"http://ms-producto:8080/q/health\",\"Interval\":\"10s\"}}' &&
+      -d '{\"Name\":\"ms-valencia-lib-prestamos\",\"ID\":\"ms-valencia-lib-prestamos-1\",\"Address\":\"ms-valencia-lib-prestamos\",\"Port\":8081,\"Check\":{\"HTTP\":\"http://ms-valencia-lib-prestamos:8081/q/health\",\"Interval\":\"10s\"}}' &&
 
       curl -X PUT http://consul-examen:8500/v1/agent/service/register
       -H 'Content-Type: application/json'
-      -d '{\"Name\":\"ms-producto\",\"ID\":\"ms-producto-2\",\"Address\":\"ms-producto-2\",\"Port\":8080,\"Check\":{\"HTTP\":\"http://ms-producto-2:8080/q/health\",\"Interval\":\"10s\"}}' &&
+      -d '{\"Name\":\"ms-valencia-lib-libros\",\"ID\":\"ms-valencia-lib-libros-1\",\"Address\":\"ms-valencia-lib-libros\",\"Port\":8082,\"Check\":{\"HTTP\":\"http://ms-valencia-lib-libros:8082/q/health\",\"Interval\":\"10s\"}}' &&
 
       curl -X PUT http://consul-examen:8500/v1/agent/service/register
       -H 'Content-Type: application/json'
-      -d '{\"Name\":\"ms-cliente\",\"ID\":\"ms-cliente-1\",\"Address\":\"ms-cliente\",\"Port\":8082,\"Check\":{\"HTTP\":\"http://ms-cliente:8082/q/health\",\"Interval\":\"10s\"}}' &&
-
-      curl -X PUT http://consul-examen:8500/v1/agent/service/register
-      -H 'Content-Type: application/json'
-      -d '{\"Name\":\"ms-ventas\",\"ID\":\"ms-ventas-1\",\"Address\":\"ms-ventas\",\"Port\":8083,\"Check\":{\"HTTP\":\"http://ms-ventas:8083/q/health\",\"Interval\":\"10s\"}}' &&
+      -d '{\"Name\":\"ms-valencia-lib-reserva\",\"ID\":\"ms-valencia-lib-reserva-1\",\"Address\":\"ms-valencia-lib-reserva\",\"Port\":8083,\"Check\":{\"HTTP\":\"http://ms-valencia-lib-reserva:8083/q/health\",\"Interval\":\"10s\"}}' &&
 
       echo 'Servicios registrados en Consul correctamente'
       "
