@@ -104,6 +104,12 @@
             <artifactId>quarkus-smallrye-health</artifactId>
         </dependency>
 
+        <!-- OPENAPI / SWAGGER UI -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>
+        </dependency>
+
         <!-- TEST -->
         <dependency>
             <groupId>io.quarkus</groupId>

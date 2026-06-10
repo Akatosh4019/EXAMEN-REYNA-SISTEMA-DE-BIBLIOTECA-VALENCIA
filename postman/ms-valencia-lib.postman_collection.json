@@ -1,0 +1,97 @@
+{
+  "info": {
+    "name": "MS Valencia Biblioteca",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "gateway_url", "value": "http://localhost:8040" },
+    { "key": "libro_id", "value": "1" },
+    { "key": "prestamo_id", "value": "1" },
+    { "key": "reserva_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Libros",
+      "item": [
+        { "name": "Listar libros", "request": { "method": "GET", "url": "{{gateway_url}}/api/libros" } },
+        { "name": "Buscar libro por ID", "request": { "method": "GET", "url": "{{gateway_url}}/api/libros/{{libro_id}}" } },
+        { "name": "Consultar stock", "request": { "method": "GET", "url": "{{gateway_url}}/api/libros/{{libro_id}}/stock" } },
+        {
+          "name": "Registrar libro",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Arquitectura de Microservicios\",\n  \"isbn\": \"9786120000001\",\n  \"anioPublicacion\": 2026,\n  \"estado\": \"DISPONIBLE\",\n  \"stockTotal\": 4,\n  \"stockDisponible\": 4,\n  \"categoria\": { \"idCategoria\": 2 },\n  \"autor\": { \"idAutor\": 2 }\n}"
+            },
+            "url": "{{gateway_url}}/api/libros"
+          }
+        },
+        { "name": "Aumentar stock", "request": { "method": "PUT", "url": "{{gateway_url}}/api/libros/{{libro_id}}/stock/aumentar/1" } },
+        { "name": "Disminuir stock", "request": { "method": "PUT", "url": "{{gateway_url}}/api/libros/{{libro_id}}/stock/disminuir/1" } }
+      ]
+    },
+    {
+      "name": "Categorias y Autores",
+      "item": [
+        { "name": "Listar categorias", "request": { "method": "GET", "url": "{{gateway_url}}/api/categorias" } },
+        { "name": "Listar autores", "request": { "method": "GET", "url": "{{gateway_url}}/api/autores" } }
+      ]
+    },
+    {
+      "name": "Prestamos",
+      "item": [
+        { "name": "Listar prestamos", "request": { "method": "GET", "url": "{{gateway_url}}/api/prestamos" } },
+        { "name": "Buscar prestamo por ID", "request": { "method": "GET", "url": "{{gateway_url}}/api/prestamos/{{prestamo_id}}" } },
+        {
+          "name": "Registrar prestamo",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreUsuario\": \"Ana Lopez\",\n  \"fechaVencimiento\": \"2026-06-20\",\n  \"detalles\": [\n    { \"idLibro\": 1, \"cantidad\": 1 }\n  ]\n}"
+            },
+            "url": "{{gateway_url}}/api/prestamos"
+          }
+        },
+        {
+          "name": "Registrar devolucion",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fechaDevolucion\": \"2026-06-18\",\n  \"observacion\": \"Libro devuelto en buen estado\"\n}"
+            },
+            "url": "{{gateway_url}}/api/prestamos/{{prestamo_id}}/devolucion"
+          }
+        },
+        { "name": "Cambiar estado", "request": { "method": "PUT", "url": "{{gateway_url}}/api/prestamos/{{prestamo_id}}/estado/VENCIDO" } }
+      ]
+    },
+    {
+      "name": "Reservas",
+      "item": [
+        { "name": "Listar reservas", "request": { "method": "GET", "url": "{{gateway_url}}/api/reservas" } },
+        { "name": "Buscar reserva por ID", "request": { "method": "GET", "url": "{{gateway_url}}/api/reservas/{{reserva_id}}" } },
+        {
+          "name": "Crear reserva",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreUsuario\": \"Luis Perez\",\n  \"idLibro\": 2,\n  \"fechaExpiracion\": \"2026-06-15\"\n}"
+            },
+            "url": "{{gateway_url}}/api/reservas"
+          }
+        },
+        { "name": "Confirmar reserva", "request": { "method": "PUT", "url": "{{gateway_url}}/api/reservas/{{reserva_id}}/confirmar" } },
+        { "name": "Cancelar reserva", "request": { "method": "PUT", "url": "{{gateway_url}}/api/reservas/{{reserva_id}}/cancelar" } },
+        { "name": "Expirar reserva", "request": { "method": "PUT", "url": "{{gateway_url}}/api/reservas/{{reserva_id}}/expirar" } }
+      ]
+    }
+  ]
+}

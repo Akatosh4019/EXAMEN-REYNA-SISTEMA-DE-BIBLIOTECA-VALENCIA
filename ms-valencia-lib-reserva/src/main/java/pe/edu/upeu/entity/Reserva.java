@@ -29,7 +29,7 @@ public class Reserva {
     @Column(nullable = false, length = 20)
     private String estado;
 
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<HistorialReserva> historial = new ArrayList<>();
 
     public Reserva() {
